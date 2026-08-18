@@ -60,7 +60,7 @@ To Run this Example:
 ====================
 Make sure you are in the directory where the USER_QOS_PROFILES.xml file was
 generated (the same directory this README file is in).
-Run /home/matt/rti_connext_dds-7.6.0/resource/scripts/rtisetenv_x64Linux4gcc8.5.0.bash
+Run /home/matt/rti_connext_dds-7.7.0/resource/scripts/rtisetenv_x64Linux4gcc8.5.0.bash
 to make sure the Connext libraries are in the path, especially if you opened
 a new command prompt window.
 Run the publishing or subscribing application by typing:

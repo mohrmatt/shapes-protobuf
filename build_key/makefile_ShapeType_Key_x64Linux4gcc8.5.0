@@ -25,7 +25,7 @@
 
 # If undefined in the environment default NDDSHOME to install dir
 ifndef NDDSHOME
-    NDDSHOME := "/home/matt/rti_connext_dds-7.6.0"
+    NDDSHOME := "/home/matt/rti_connext_dds-7.7.0"
 endif
 
 SOURCE_DIR = 

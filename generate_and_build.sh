@@ -5,7 +5,7 @@
 set -euo pipefail
 
 ARCH="${ARCH:-x64Linux4gcc8.5.0}"
-NDDSHOME="${NDDSHOME:-/home/matt/rti_connext_dds-7.6.0}"
+NDDSHOME="${NDDSHOME:-/home/matt/rti_connext_dds-7.7.0}"
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # ---------------------------------------------------------------------------
@@ -39,30 +39,41 @@ rtiddsgen -language C++11 -standard PROTOBUF_CPP \
 # ---------------------------------------------------------------------------
 echo "==> Generating build_key"
 cd "$REPO_DIR"
-mkdir -p build_key/omg/dds
 protoc \
     -I . \
     -I "$NDDSHOME/include" \
     --idl4_out=build_key \
     --cpp_out=build_key \
     --connext-cpp_out=build_key \
-    ShapeType_Key.proto omg/dds/descriptor.proto
+    ShapeType_Key.proto
 
-cd "$REPO_DIR/build_key"
+mkdir -p build_key/omg/dds
+protoc \
+    -I . \
+    --cpp_out=build_key \
+    omg/dds/descriptor.proto
+
 rtiddsgen -language C++11 -standard PROTOBUF_CPP \
     -example "$ARCH" -replace \
-    -I . -d . \
-    ShapeType_Key.idl
+    -d build_key \
+    build_key/ShapeType_Key.idl
 
 # ---------------------------------------------------------------------------
-# build_dds — pure IDL example (no protobuf runtime)
+# build_dds — convert proto to IDL, then generate with rtiddsgen (no protobuf runtime)
 # ---------------------------------------------------------------------------
 echo "==> Generating build_dds"
+cd "$REPO_DIR"
+protoc \
+    -I . \
+    -I "$NDDSHOME/include" \
+    --idl4_out=build_dds \
+    ShapeType_Key.proto omg/dds/descriptor.proto
+
 cd "$REPO_DIR/build_dds"
 rtiddsgen -language C++11 \
     -example "$ARCH" -replace \
     -d . \
-    shape_type_key.idl
+    ShapeType_Key.idl
 
 # ---------------------------------------------------------------------------
 # Patch subscribers to print individual fields
@@ -98,7 +109,7 @@ PATCHES = [
          '                      << ", shapesize=" << data.shapesize() << std::endl;'),
     ),
     (
-        os.path.join(REPO, "build_dds", "shape_type_key_subscriber.cxx"),
+        os.path.join(REPO, "build_dds", "ShapeType_Key_subscriber.cxx"),
         "std::cout << sample.data() << std::endl;",
         ('const ::ShapeType& data = sample.data();\n'
          '            std::cout << "Received ShapeType: "\n'
@@ -137,7 +148,7 @@ make -f "makefile_ShapeType_Key_${ARCH}"
 
 echo "==> Building build_dds"
 cd "$REPO_DIR/build_dds"
-make -f "makefile_shape_type_key_${ARCH}"
+make -f "makefile_ShapeType_Key_${ARCH}"
 
 echo ""
 echo "Done. Binaries are in each build directory under objs/${ARCH}/"
