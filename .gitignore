@@ -11,3 +11,4 @@ build_no_key/objs/
 # Generated protobuf files (if regenerating)
 # *.pb.cc
 # *.pb.h
+tmp/
