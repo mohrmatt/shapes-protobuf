@@ -1,0 +1,13 @@
+# Compiled binaries
+build_dds/objs/
+build_key/objs/
+build_no_key/objs/
+
+# Object files
+*.o
+*.a
+*.so
+
+# Generated protobuf files (if regenerating)
+# *.pb.cc
+# *.pb.h

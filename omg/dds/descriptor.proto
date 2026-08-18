@@ -1,0 +1,45 @@
+syntax = "proto2";
+import "google/protobuf/descriptor.proto";
+
+package omg.dds;
+
+enum ExtensibilityKind {
+  MUTABLE = 0; // "Mutable" extensibility, members can be reordered,  added, or removed.
+  APPENDABLE = 1; // "Appendable" extensibility, members can be added or removed from the end.
+  FINAL = 2; // "Final" extensibility, member cannot be added, removed or reordered.
+}
+
+enum DefaultIdKind {
+  PROTOBUF_DEFAULT_ID = 0; // Derive an @id annotation for each DDS member from the corresponding protobuf field number.
+  DDS_DEFAULT_ID = 1; // Do not emit @id annotations, unless explicitly provided through the "omg.dds.member.id" option.
+}
+
+enum AutoIdKind {
+  NO_AUTO_ID = 0; // Do not emit an @autoid annotation
+  SEQUENTIAL = 1; // Emit @autoid(sequential) to use sequential IDs starting from 0
+  HASH = 2; // Emit @autoid(hash), to use a hash of the field name to generate IDs
+}
+
+message TypeAnnotation {
+  optional string name = 1;
+  optional ExtensibilityKind extensibility = 2;
+  optional DefaultIdKind default_id = 3;
+  optional AutoIdKind auto_id = 4;
+}
+
+extend google.protobuf.MessageOptions {
+  optional TypeAnnotation type = 7400;
+}
+
+message MemberAnnotation {
+  optional bool key = 1;
+  optional bool filterable = 2;
+  optional bool optional = 3;
+  optional DefaultIdKind default_id = 4;
+  optional uint32 id = 5;
+  optional string hash_id = 6;
+}
+
+extend google.protobuf.FieldOptions {
+  optional MemberAnnotation member = 7400;
+}
