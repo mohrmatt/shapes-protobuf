@@ -1,0 +1,15 @@
+# Staging directories populated by build.sh (user-local RTI/gateway binaries)
+routing-service/libs/
+routing-service/bin/
+# XML staged by build.sh from kafka-shapes-demo/config/
+routing-service/config/shapesdemo_kafka_protobuf.xml
+kafka-publisher/libs/
+kafka-publisher/bin/
+kafka-subscriber/libs/
+kafka-subscriber/bin/
+
+# Kafka tarball staged by build.sh
+kafka/kafka.tgz
+
+# User-specific environment config
+.env

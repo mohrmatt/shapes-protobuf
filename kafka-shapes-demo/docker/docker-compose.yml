@@ -1,0 +1,85 @@
+# Kafka-DDS Shapes Demo — Docker Compose
+#
+# All containers use network_mode: host so that:
+#   - RTI Routing Service participates in DDS UDP multicast alongside
+#     rtishapesdemo running natively on the host.
+#   - All services reach the Kafka broker at localhost:9092.
+#
+# Run ./build.sh first, then ./start.sh to launch.
+
+services:
+
+  kafka-broker:
+    image: shapes-demo-kafka
+    build:
+      context: kafka
+    network_mode: host
+    volumes:
+      - kafka-data:/opt/kafka/data
+    healthcheck:
+      test:
+        - CMD
+        - /opt/kafka/bin/kafka-topics.sh
+        - --bootstrap-server
+        - localhost:9092
+        - --list
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+  routing-service:
+    image: shapes-demo-routing-service
+    build:
+      context: routing-service
+    network_mode: host
+    depends_on:
+      kafka-broker:
+        condition: service_healthy
+    restart: unless-stopped
+
+  kafka-publisher-square:
+    image: shapes-demo-kafka-publisher
+    build:
+      context: kafka-publisher
+    network_mode: host
+    depends_on:
+      kafka-broker:
+        condition: service_healthy
+    # Args: <broker> <color> <topic>
+    command: ["localhost:9092", "GREEN", "Square"]
+    restart: unless-stopped
+
+  kafka-publisher-triangle:
+    image: shapes-demo-kafka-publisher
+    network_mode: host
+    depends_on:
+      kafka-broker:
+        condition: service_healthy
+    command: ["localhost:9092", "BLUE", "Triangle"]
+    restart: unless-stopped
+
+  kafka-subscriber-square:
+    image: shapes-demo-kafka-subscriber
+    build:
+      context: kafka-subscriber
+    network_mode: host
+    depends_on:
+      kafka-broker:
+        condition: service_healthy
+    # Args: <broker> <topic>
+    command: ["localhost:9092", "Square"]
+    restart: unless-stopped
+
+  kafka-subscriber-triangle:
+    image: shapes-demo-kafka-subscriber
+    network_mode: host
+    depends_on:
+      kafka-broker:
+        condition: service_healthy
+    command: ["localhost:9092", "Triangle"]
+    restart: unless-stopped
+
+volumes:
+  kafka-data:
